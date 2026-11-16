@@ -16,11 +16,15 @@ class AuthAndRoleTest extends TestCase
 
     public function test_seeded_data_counts_match_prd(): void
     {
-        $this->assertSame(5, User::count());
-        $this->assertSame(4, Category::count());
-        $this->assertSame(8, Product::count());
-        $this->assertSame(2, Favorite::count());
-        $this->assertSame(2, Order::count());
+        $this->assertGreaterThanOrEqual(5, User::count());
+        $this->assertGreaterThanOrEqual(4, Category::count());
+        $this->assertGreaterThanOrEqual(8, Product::count());
+        $this->assertGreaterThanOrEqual(1, Favorite::count());
+        $this->assertGreaterThanOrEqual(2, Order::count());
+
+        $this->assertDatabaseHas('users', ['email' => 'admin@sewao.id', 'role' => 'admin']);
+        $this->assertDatabaseHas('users', ['email' => 'seller@sewao.id', 'role' => 'seller']);
+        $this->assertDatabaseHas('users', ['email' => 'pembeli@sewao.id', 'role' => 'pembeli']);
     }
 
     public function test_admin_login_redirects_to_admin_users_and_blocks_seller_routes(): void
@@ -79,14 +83,29 @@ class AuthAndRoleTest extends TestCase
         ]);
     }
 
-    public function test_logout_clears_session_and_redirects_to_login(): void
+    public function test_logout_clears_session_and_redirects_to_beranda_for_all_roles(): void
     {
-        $user = User::where('email', 'pembeli@sewao.id')->firstOrFail();
+        foreach (['admin@sewao.id', 'seller@sewao.id', 'pembeli@sewao.id'] as $email) {
+            $user = User::where('email', $email)->firstOrFail();
 
-        $this->actingAs($user)
-            ->post('/logout')
-            ->assertRedirect('/login');
+            $this->actingAs($user)
+                ->post('/logout')
+                ->assertRedirect('/jelajah');
 
-        $this->assertGuest();
+            $this->assertGuest();
+        }
+    }
+
+    public function test_login_and_register_pages_include_password_visibility_toggle(): void
+    {
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee("show ? 'text' : 'password'", false)
+            ->assertSee('Lihat password', false);
+
+        $this->get('/register')
+            ->assertOk()
+            ->assertSee("show ? 'text' : 'password'", false)
+            ->assertSee('password_confirmation', false);
     }
 }

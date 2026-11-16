@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -89,12 +91,26 @@ class ProductController extends Controller
             'price_per_day' => ['required', 'integer', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
-            'image_url' => ['nullable', 'string', 'max:255'],
+            'image_url' => ['nullable', 'string', 'max:65000'],
+            'image_file' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $validated['image_url'] = isset($validated['image_url']) && trim($validated['image_url']) !== ''
-            ? trim($validated['image_url'])
-            : null;
+        unset($validated['image_file']);
+
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $dir = public_path('uploads/products');
+            File::ensureDirectoryExists($dir);
+
+            $filename = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+            $file->move($dir, $filename);
+            $validated['image_url'] = '/uploads/products/'.$filename;
+        } else {
+            $validated['image_url'] = isset($validated['image_url']) && trim($validated['image_url']) !== ''
+                ? trim($validated['image_url'])
+                : null;
+        }
+
         $validated['is_featured'] = $request->boolean('is_featured');
 
         return $validated;

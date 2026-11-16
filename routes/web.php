@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Buyer\CartController as BuyerCartController;
 use App\Http\Controllers\Buyer\CatalogController as BuyerCatalogController;
 use App\Http\Controllers\Buyer\FavoriteController as BuyerFavoriteController;
 use App\Http\Controllers\Buyer\OrderController as BuyerOrderController;
 use App\Http\Controllers\Seller\CategoryController as SellerCategoryController;
+use App\Http\Controllers\Seller\PaymentController as SellerPaymentController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use App\Http\Controllers\Seller\SettingController as SellerSettingController;
 use Illuminate\Support\Facades\Route;
@@ -13,8 +15,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => redirect()->route('jelajah'));
 
 Route::get('/jelajah', [BuyerCatalogController::class, 'index'])->name('jelajah');
+Route::get('/marketplace', [BuyerCatalogController::class, 'marketplace'])->name('marketplace');
 
 Route::middleware(['auth', 'role:pembeli'])->group(function () {
+    Route::get('/keranjang', [BuyerCartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [BuyerCartController::class, 'add'])->name('cart.add');
+    Route::patch('/cart/{cartItem}', [BuyerCartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cartItem}', [BuyerCartController::class, 'destroy'])->name('cart.destroy');
+    Route::post('/cart/checkout', [BuyerCartController::class, 'checkout'])->name('cart.checkout');
+
     Route::get('/pesanan', [BuyerOrderController::class, 'index'])->name('pesanan');
     Route::post('/orders', [BuyerOrderController::class, 'store'])->name('orders.store');
 
@@ -50,6 +59,9 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::post('/categories', [SellerCategoryController::class, 'store'])->name('categories.store');
     Route::put('/categories/{category}', [SellerCategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [SellerCategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::get('/payments', [SellerPaymentController::class, 'index'])->name('payments.index');
+    Route::patch('/payments/{order}', [SellerPaymentController::class, 'updateStatus'])->name('payments.update');
 
     Route::get('/settings', [SellerSettingController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SellerSettingController::class, 'update'])->name('settings.update');

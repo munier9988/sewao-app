@@ -80,6 +80,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 250000,
                 'stock' => 4,
                 'description' => 'Titanium Natural, ProRAW 48MP, Battery Health 96%, lengkap kabel USB-C & case.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Apple_iPhone_15_Pro.jpg/960px-Apple_iPhone_15_Pro.jpg',
                 'is_featured' => true,
             ],
             [
@@ -88,6 +89,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 140000,
                 'stock' => 6,
                 'description' => 'Dual camera Cinematic Mode, kondisi mulus, siap pakai harian & konten.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/IPhone_13.jpg/960px-IPhone_13.jpg',
                 'is_featured' => false,
             ],
             [
@@ -96,6 +98,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 260000,
                 'stock' => 3,
                 'description' => 'Zoom optik 10x, S-Pen bawaan, Galaxy AI siap konser & liputan.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Samsung_Galaxy_S24_Ultra.jpg/960px-Samsung_Galaxy_S24_Ultra.jpg',
                 'is_featured' => true,
             ],
             [
@@ -104,6 +107,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 165000,
                 'stock' => 5,
                 'description' => 'Lensa Leica Summilux, layar 144Hz AMOLED, fast charging 120W.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Xiaomi_13_20240220.jpg/960px-Xiaomi_13_20240220.jpg',
                 'is_featured' => false,
             ],
             [
@@ -112,6 +116,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 220000,
                 'stock' => 3,
                 'description' => 'Apple M2 Chip, RAM 16GB, SSD 512GB, baterai awet seharian + sleeve bag.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/M2_Macbook_Air_Midnight_model_-_1.jpg/960px-M2_Macbook_Air_Midnight_model_-_1.jpg',
                 'is_featured' => true,
             ],
             [
@@ -120,6 +125,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 275000,
                 'stock' => 2,
                 'description' => 'Ryzen 9, RTX 4060, cocok untuk rendering video 4K, desain 3D, & gaming.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/ASUS_GL553VD_Light-on_keyboard.jpg/960px-ASUS_GL553VD_Light-on_keyboard.jpg',
                 'is_featured' => false,
             ],
             [
@@ -128,6 +134,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 280000,
                 'stock' => 3,
                 'description' => 'Full-frame 24MP, 4K HDR, termasuk 2 baterai, SD Card 64GB, & tas kamera.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Sony_Alpha7_III_20_apr_2018f.jpg/960px-Sony_Alpha7_III_20_apr_2018f.jpg',
                 'is_featured' => true,
             ],
             [
@@ -136,6 +143,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => 185000,
                 'stock' => 0,
                 'description' => 'Sensor 1 inci, gimbal 3-axis, Creator Combo lengkap dengan DJI Mic 2.',
+                'image_url' => 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/DJI_Osmo_Pocket_3_-_1.jpg/960px-DJI_Osmo_Pocket_3_-_1.jpg',
                 'is_featured' => false,
             ],
         ];
@@ -149,7 +157,7 @@ class DatabaseSeeder extends Seeder
                 'price_per_day' => $item['price_per_day'],
                 'stock' => $item['stock'],
                 'description' => $item['description'],
-                'image_url' => null,
+                'image_url' => $item['image_url'],
                 'is_featured' => $item['is_featured'],
             ]);
         }

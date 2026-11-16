@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -128,9 +129,13 @@ class BackofficeTest extends TestCase
         $this->actingAs($seller)
             ->get('/seller/products')
             ->assertOk()
-            ->assertSee('<svg', false);
+            ->assertSee('<svg', false)
+            ->assertSee('window.__sewaoProductsMap', false)
+            ->assertDontSee("openEdit(JSON.parse('", false);
 
-        // Create product with empty image_url
+        $longImageUrl = 'https://cdn.example.com/images/electronics/laptops/2026/thinkpad-x1-carbon-gen11/highres-photo.jpg?'.str_repeat('param=value&', 25).'v=1';
+
+        // Create product with long image_url (>255 chars)
         $this->actingAs($seller)
             ->post('/seller/products', [
                 'category_id' => $category->id,
@@ -138,15 +143,21 @@ class BackofficeTest extends TestCase
                 'price_per_day' => 195000,
                 'stock' => 2,
                 'description' => 'Intel Core i7, RAM 16GB, ringan 1.1kg.',
-                'image_url' => '',
+                'image_url' => $longImageUrl,
                 'is_featured' => '1',
             ])
             ->assertRedirect('/seller/products')
             ->assertSessionHas('success');
 
         $product = Product::where('name', 'ThinkPad X1 Carbon Gen 11')->firstOrFail();
-        $this->assertNull($product->image_url);
+        $this->assertSame($longImageUrl, $product->image_url);
         $this->assertTrue($product->is_featured);
+
+        // Verify image renders on Buyer /marketplace storefront with referrerpolicy="no-referrer"
+        $this->get('/marketplace')
+            ->assertOk()
+            ->assertSee($longImageUrl)
+            ->assertSee('referrerpolicy="no-referrer"', false);
 
         // Update product
         $this->actingAs($seller)
@@ -205,5 +216,30 @@ class BackofficeTest extends TestCase
         $this->actingAs($seller)
             ->put('/seller/settings', ['wa_phone' => '12345'])
             ->assertSessionHasErrors('wa_phone');
+    }
+
+    public function test_seller_can_view_and_manage_order_payments(): void
+    {
+        $seller = User::where('email', 'seller@sewao.id')->firstOrFail();
+        $order = Order::whereHas('product', fn ($q) => $q->where('seller_id', $seller->id))
+            ->firstOrFail();
+
+        $this->actingAs($seller)
+            ->get('/seller/payments')
+            ->assertOk()
+            ->assertSee('Manajemen Pembayaran')
+            ->assertSee($order->order_code);
+
+        $this->actingAs($seller)
+            ->patch("/seller/payments/{$order->id}", [
+                'payment_status' => 'lunas',
+                'status' => 'disewa',
+            ])
+            ->assertRedirect('/seller/payments')
+            ->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertSame('lunas', $order->payment_status);
+        $this->assertSame('disewa', $order->status);
     }
 }
